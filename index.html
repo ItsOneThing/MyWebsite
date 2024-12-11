@@ -1,264 +1,170 @@
-
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
+ 
 <head>
-  <title>Accedi con Argo Software</title>
-
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=10.0" name="viewport"/>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-
-  <link href="https://www.portaleargo.it/assets/auth/images/favicon.ico" rel="shortcut icon" type="image/x-icon">
-
-  <meta name="author" content="Stefano Corallo / developer - argosoft.it ">
-  <meta name="keywords" content="Argo, registro elettronico, scuola, didattica a distanza, applicativi per la scuola">
-  <meta name="description" content="Argo, registro elettronico, didattica a distanza e altri applicativi per la gestione della scuola.">
-
-  <!-- Fonts and icons -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue Music Player with Image Spin Control</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>        
   <style>
-    .fa,.fab,.fad,.fal,.far,.fas {
-      -moz-osx-font-smoothing: grayscale;
-      -webkit-font-smoothing: antialiased;
-      display: inline-block;
-      font-style: normal;
-      font-variant: normal;
-      text-rendering: auto;
-      line-height: 1
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 90vh;
+    }
+    
+    button{
+      /* 清除默认边框 */
+      border:0;
+      outline:none;
+      /*清除默认背景 */
+      background-color: transparent;
+      padding: 25px;
+    }
+ 
+    .music-player {
+      text-align: center;
+      position: relative;
+      bottom: 0;
+    }
+ 
+    audio {
+      width: 300px;
+    }
+ 
+    .disc-container {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+ 
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+ 
+    .disc {
+      width: 20vw;
+      height: 20vw;
+      border-radius: 50%;
+      background-size: cover;
+      animation: spin 20s linear infinite;
+      border: 20px solid rgba(30, 29, 29, 0.5); /* 添加边框 */
+    }
+
+    audio::-webkit-media-controls-play-button {
+      display: none;
     }
   </style>
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
-        as="style" onload="this.onload=null;this.rel='stylesheet';">
-  <!-- Risorsa replicata per i browser che non supportano il preload -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
-
-  <!-- Material Kit CSS -->
-  <link href="https://www.portaleargo.it/assets/auth/css/material-kit.min.css?v=2.0.6" rel="stylesheet"/>
-
-  <!-- SPID button CSS -->
-  <link href="https://www.portaleargo.it/assets/auth/css/spid-sp-access-button.min.css?v=1.6" rel="stylesheet" type="text/css"/>
-
-  <!--  Libreria popper del portale-->
-  <script type="text/javascript" src="https://www.portaleargo.it/portale/js/popper.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://www.portaleargo.it/portale/stylesheet/style-popper.css">
-
-  <link href="https://www.portaleargo.it/assets/auth/css/video-js.css" rel="stylesheet" />
-
-  <!-- Custom CSS -->
-  <link href="https://www.portaleargo.it/assets/auth/css/style.css?v=2.19.6" media="all" rel="stylesheet"
-        type="text/css"/>
 </head>
-
-
-<body class="bg-primary" style="height: 100vh">
-
-<div class="d-flex justify-content-center align-items-center" style="min-height:100%!important">
-
-    <!-- login form   -->
-    <div class="card-container px-3 px-md-5 text-center">
-      <div class="ml-auto mr-auto card card-raised">
-        <div class="progress" id="progress" style="display: none;">
-          <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0"
-               class="progress-bar progress-bar-indeterminate bg-info" role="progressbar">
-          </div>
-        </div>
-
-        <div class="card-title my-0">
-          <h3>didUP</h3>
-          <img class="img-fluid" src="https://cdnaws.portaleargo.it/portale/images/icone/didup.svg" alt="Logo Applicazione" style="max-width: 100px"/>
-        </div>
-
-<div class="card-body pt-0">
-  <div class="alert alert-danger" id="clockScrewWarning" role="alert" style="display:none;">
-    <div class="container">
-      Attenzione l'orologio del tuo sistema non &egrave; sincronizzato.
-      <ul class="container">
-        <li>Server Argo: <span id="clockScrewServerTime"></span></li>
-        <li>Tu: <span id="clockScrewClientTime"></span></li>
-      </ul>
-      <p class="container">Questo causa problemi in fase di autenticazione.</p>
-      <b class="container">&Egrave; necessario correggere sul tuo dispositivo la data e l'ora o il fuso orario.</b>
+ 
+<body>
+  <div id="app">
+    <div class="music-player">
+      <audio ref="audioPlayer" controls @play="startImageSpin" @pause="stopImageSpin" @ended="stopImageSpin">
+        <source :src="currentSong.url" type="audio/mpeg">
+      </audio>
+      <h2>{{ currentSong.title }}</h2>
+      <button @click="playPrevious">
+        <svg t="1730998212948" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1026" width="30" height="30"><path d="M256 224a32 32 0 0 1 32 32v512a32 32 0 0 1-64 0V256a32 32 0 0 1 32-32z m385.952 30.624a96 96 0 0 1 157.44 73.76v366.72a96 96 0 0 1-157.44 73.76l-220.032-183.36a96 96 0 0 1 0-147.52z m86.048 53.28a32 32 0 0 0-45.056-4.096l-220.032 183.36a32 32 0 0 0-4.096 4.096l-2.4 3.232a32 32 0 0 0 6.496 41.824l220.032 183.36a32 32 0 0 0 52.48-24.576v-366.72a32 32 0 0 0-7.424-20.48z" fill="#000000" p-id="1027"></path></svg>
+      </button>
+      <button @click="togglePlayPause">
+        <svg t="1730998261628" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1330" width="30" height="30"><path d="M608.352 442.176a64 64 0 0 1 33.92 9.728l163.648 102.272a64 64 0 0 1 0 108.544l-163.648 102.272a64 64 0 0 1-97.92-54.272v-204.544a64 64 0 0 1 64-64zM448 704a32 32 0 0 1 0 64H224a32 32 0 0 1 0-64h224z m160.352-197.824v204.544l163.648-102.272-163.648-102.272zM448 448a32 32 0 0 1 0 64H224a32 32 0 0 1 0-64h224z m352-256a32 32 0 0 1 0 64H224a32 32 0 1 1 0-64h576z" fill="#000000" p-id="1331"></path></svg>
+      </button>
+      <button @click="playNext">
+        <svg t="1730998244067" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1177" width="30" height="30"><path d="M768 224a32 32 0 0 1 32 32v512a32 32 0 0 1-64 0V256a32 32 0 0 1 32-32z m-386.336 31.36l220.032 183.36a96 96 0 0 1 0 147.52l-220.032 183.36a96 96 0 0 1-157.44-73.76v-366.72a96 96 0 0 1 157.44-73.76zM295.616 308.64a32 32 0 0 0-7.424 20.48v366.72a32 32 0 0 0 52.48 24.576l220.032-183.36a32 32 0 0 0 6.496-41.824l-2.4-3.264a32 32 0 0 0-4.096-4.096l-220.032-183.36a32 32 0 0 0-45.056 4.128z" fill="#000000" p-id="1178"></path></svg>
+      </button>
+    </div>
+    <div class="disc-container">
+        <div class="disc" :style="`background-image: url(${currentImage})`" ref="disc"></div>
     </div>
   </div>
-
-  <form enctype="application/x-www-form-urlencoded" id="loginForm" method="POST" name="loginForm"
-        action="/auth/sso/login">
-    <input type="hidden" name="challenge" value="de2c564e1eaf42c88f0a5647eb5dccaa"/>
-    <input type="hidden" name="client_id" value="963ed11e-33b2-41b4-8911-f4f1907bd208"/>
-    <input type="hidden" name="prefill" value="false"/>
-
-
-    <div class="form-group bmd-form-group is-filled">
-      <label for="username" class="label bmd-label-static">
-        <i class="fa fa-user"></i>
-        Nome Utente
-      </label>
-
-      <input id="username"
-             type="text"
-             pattern="\s*[a-zA-Z0-9._-]+\s*|\s*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}\s*"
-             class="form-control"
-             name="username" required autofocus
-             placeholder=""
-             
-             value="" autocomplete="off"
-             title="Assicurati che nel nome utente non siano presenti spazi vuoti."
-      >
-    </div>
-
-    <div class="form-group bmd-form-group is-filled">
-      <label for="password" class="label bmd-label-static">
-        <i class="fa fa-lock"></i>
-        Password
-      </label>
-      <div class="input-group">
-        <input autocomplete="off" class="form-control" id="password" name="password" required type="password">
-        <span class="fa fa-fw fa-eye reveal" style="width: 2.5rem"></span>
-      </div>
-
-      <a
-        href=""
-        class="label-right"
-      >
-        <u>Recupera la password</u>
-      </a>
-    </div>
-
-    <div class="form-check d-flex align-items-center clearfix">
-      <label for="remember_me" class="label form-check-label float-left">
-        <input
-          onclick="((checkbox) => { if(checkbox.checked && shouldShowModal($('#username')[0]?.value)){ $('#ssoModal').modal({'backdrop': 'static'}); } })(this);"
-          id="remember_me"
-          type="checkbox"
-          class="form-check-input"
-          name="remember_me"
-          value="true"
-        >Ricordami
-        <span class="form-check-sign">
-          <span class="check"></span>
-        </span>
-      </label>
-      <small class="text-left ml-3">Cliccando su "Ricordami" non dovrai più autenticarti su questo dispositivo per
-        accedere alle applicazioni.
-        <a href="#" onclick="$('#ssoModal').modal({'backdrop': 'static'});">
-          <u>Informativa SSO</u>
-        </a>
-      </small>
-    </div>
-
-    <div class="modal fade" id="ssoModal" tabindex="-1" role="dialog" aria-labelledby="ssoModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title" id="ssoModalLabel">Informativa Single Sign On</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p class="text-justify">
-              Cliccando su &quot;Ricordami&quot; attiverai la modalit&agrave; SSO (Single Sign On): potrai effettuare l'accesso senza
-              autenticarti nuovamente, su questo dispositivo, per le prossime 24 ore o fintanto che non effettuerai manualmente il logout.
-              Se attivi la modalità SSO su un dispositivo condiviso, ricordati di effettuare il logout al termine della
-              tua sessione di lavoro, altrimenti chiunque abbia accesso al dispositivo potrebbe accedere automaticamente
-              alle applicazioni senza autorizzazione.
-            </p>
-          </div>
-          <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-round btn-danger" onclick="$('#remember_me')[0].checked = false;" data-dismiss="modal">Annulla</button>
-            <button class="btn btn-round btn-success" data-dismiss="modal"
-                    onclick="$('#remember_me')[0].checked = true;setShowModalCookie($('#username')[0]?.value);"
-                    type="button">Conferma
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn btn-block btn-round btn-primary mt-3" id="accediBtn" type="submit" name="login" value="true">Entra</button>
-  </form>
-
-  <form enctype="application/x-www-form-urlencoded" id="loginDenyForm" method="POST" name="loginForm"
-        action="/auth/sso/login">
-    <input type="hidden" name="challenge" value="de2c564e1eaf42c88f0a5647eb5dccaa"/>
-    <input type="hidden" name="client_id" value="963ed11e-33b2-41b4-8911-f4f1907bd208"/>
-
-    <button class="btn btn-block btn-round btn-danger mt-3" id="cancellaBtn" type="submit" name="login" value="false">Torna indietro</button>
-  </form>
-
-
-  <div class="mt-3"><b><i>OPPURE</i></b></div>
-
-  <form enctype="application/x-www-form-urlencoded" id="spidForm" method="POST" name="loginForm" action="/auth/eid-gateway/sso">
-    <input type="hidden" name="challenge" value="de2c564e1eaf42c88f0a5647eb5dccaa">
-    <input type="hidden" name="client_id" value="963ed11e-33b2-41b4-8911-f4f1907bd208">
-
-    <div class="d-sm-flex d-md-block d-lg-flex align-items-center">
-      <div class="col-sm-6 col-md-12 col-lg-6 px-0 pr-sm-3 pr-md-0 pr-lg-3 form-group bmd-form-group is-filled">
-        <label for="customer_code" class="label bmd-label-static">
-          <i class="fa fa-user"></i>
-          Codice Scuola
-        </label>
-
-        <input id="customer_code" type="text" class="form-control" name="customer_code"
-               required="" autofocus="" value="" autocomplete="off"
-               >
-      </div>
-
-      <div class="w-100">
-        <a href="#" type="button" onclick="document.getElementById('spidForm').submit()" class="italia-it-button italia-it-button-size-m button-spid d-flex" data-vertical-offset="-539"
-           spid-idp-button="#spid-idp-button" aria-haspopup="true" aria-expanded="false">
-              <span class="italia-it-button-icon">
-                <img onerror="this.src='https://www.portaleargo.it/assets/auth/images/spid-ico-circle-bb.png'; this.onerror=null;"
-                     src="https://www.portaleargo.it/assets/auth/images/spid-ico-circle-bb.png"
-                     alt="">
-              </span>
-          <span class="italia-it-button-text">SPID - CIE - EIDAS</span>
-        </a>
-      </div>
-    </div>
-  </form>
-</div>
-
-        <!-- footer -->
-        <div class="card-footer justify-content-between">
-          <a href="https://www.portaleargo.it">
-            <img class="img-fluid footer-logo" src="https://www.portaleargo.it/assets/auth/images/logo_argo.png" alt="Logo Argo">
-          </a>
-          <img class="footer-logo" src="https://www.portaleargo.it/assets/auth/images/rina.png" alt="Logo Rina">
-        </div>
-        <p>&copy; Tutti i diritti riservati</p>
-      </div>
-    </div>
-
-    <!-- promo card  -->
-    <div class="d-none d-lg-flex py-3 px-3 py-md-5 px-md-5 text-white align-items-center" style="width:60%">
-      <div class="embed-responsive embed-responsive-1by1">
-        <iframe
-          class="embed-responsive-item"
-          src="https://cdn.portaleargo.it/assets/promo/default/default.html">
-
-        </iframe>
-      </div>
-    </div>
-
-</div>
-
-<!--   Core JS Files   -->
-<script src="https://www.portaleargo.it/assets/auth/js/core/jquery.min.js" type="text/javascript"></script>
-<script src="https://www.portaleargo.it/assets/auth/js/core/popper.min.js" type="text/javascript"></script>
-<script src="https://www.portaleargo.it/assets/auth/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
-<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
-<script src="https://www.portaleargo.it/assets/auth/js/plugins/moment.min.js?v=2.29.1" type="text/javascript"></script>
-<script src="https://www.portaleargo.it/assets/auth/js/plugins/moment-locale-it.min.js?v=2.29.1" charset="UTF-8" type="text/javascript"></script>
-<script src="https://www.portaleargo.it/assets/auth/js/plugins/moment-timezone.min.js?v=0.5.32" type="text/javascript"></script>
-
-<!-- remotejs scripts -->
-<script src="https://www.portaleargo.it/assets/auth/js/main.js?v=2.19.6" type="text/javascript"></script>
-
-<script type="text/javascript">
-  window.start.init({ Palette: "palette3", Mode: "banner bottom", Theme: "wire", ButtonText: "Ok", Message: "Su questo sito e negli applicativi collegati utilizziamo alcuni cookies che sono necessari al funzionamento dei prodotti software. Per più informazioni su quali cookies potrebbero essere utilizzati negli applicativi o su questo portale clicca su 'Mostra Dettagli'.", LinkText: "Mostra Dettagli", Location:"https://www.argosoft.it/privacy.php", Time: "1", });
-</script>
+ 
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+ 
+    createApp({
+      setup() {
+        const audioPlayer = ref(null);
+        const discElement = ref(null);
+        const currentSongIndex = ref(0);
+        const songs = ref([
+            { title: '流沙', url: 'https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VYSldHSzUwZmRGUHRHdVdUYVlVT21NQjlhM012UnR6OHFMakR4NWlHU2xsZGc.mp3', image: 'https://bkimg.cdn.bcebos.com/pic/562c11dfa9ec8a1349f69415fd03918fa1ecc053?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080' },
+            { title: '老街', url: 'https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VkcjU3elIxemcxQ2pxOWFXY2FGMG1rQkszQUF5VXlqNTNxRWlfMl9BdWRwRHc.mp3', image: 'https://th.bing.com/th/id/OIP.SVzcxWEcdfkbYTomeyBCBgHaHa?rs=1&pid=ImgDetMain' }          
+        ]);
+        const currentImage = ref(songs.value[0].image);
+        const currentSong = computed(() => songs.value[currentSongIndex.value]);
+ 
+        function playPrevious() {
+          if (currentSongIndex.value > 0) {
+            currentSongIndex.value--;
+          } else {
+            currentSongIndex.value = songs.value.length - 1;
+          }
+          updateImage();
+          audioPlayer.value.load();
+          audioPlayer.value.play();
+        }
+ 
+        function playNext() {
+          if (currentSongIndex.value < songs.value.length - 1) {
+            currentSongIndex.value++;
+          } else {
+            currentSongIndex.value = 0;
+          }
+          updateImage();
+          audioPlayer.value.load();
+          audioPlayer.value.play();
+        }
+ 
+        function togglePlayPause() {
+          if (audioPlayer.value.paused) {
+            audioPlayer.value.play();
+          } else {
+            audioPlayer.value.pause();
+          }
+        }
+ 
+        function startImageSpin() {
+          discElement.value.style.animationPlayState = 'running';
+        }
+ 
+        function stopImageSpin() {
+          discElement.value.style.animationPlayState = 'paused';
+        }
+ 
+        function updateImage() {
+          // Reset the rotation to 0 degrees
+          discElement.value.style.transform = 'rotate(0deg)';
+          currentImage.value = currentSong.value.image;
+        }
+ 
+        onMounted(() => {
+          discElement.value = document.querySelector('.disc');
+          updateImage();
+          stopImageSpin();
+        });
+ 
+        return {
+          currentSong,
+          playPrevious,
+          playNext,
+          togglePlayPause,
+          startImageSpin,
+          stopImageSpin,
+          currentImage,
+          audioPlayer
+        };
+      }
+    }).mount('#app');
+  </script>
 </body>
+ 
 </html>
