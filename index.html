@@ -5,9 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vue Music Player with Image Spin Control</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>      
-  <link rel="icon" type="image/x-icon" href="https://art.pixilart.com/thumb/f3621b11c1dfef3.png">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>        
   <style>
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     body {
       display: flex;
       flex-direction: column;
@@ -97,8 +100,8 @@
         const discElement = ref(null);
         const currentSongIndex = ref(0);
         const songs = ref([
-            { title: '流沙', url: 'https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VYSldHSzUwZmRGUHRHdVdUYVlVT21NQjlhM012UnR6OHFMakR4NWlHU2xsZGc.mp3', image: 'https://upload.wikimedia.org/wikipedia/zh/thumb/d/d1/Davidtao.jpg/220px-Davidtao.jpg' },
-            { title: '老街', url: 'https://dlink.host/musics/aHR0cHM6Ly9vbmVkcnYtbXkuc2hhcmVwb2ludC5jb20vOnU6L2cvcGVyc29uYWwvc3Rvcl9vbmVkcnZfb25taWNyb3NvZnRfY29tL0VkcjU3elIxemcxQ2pxOWFXY2FGMG1rQkszQUF5VXlqNTNxRWlfMl9BdWRwRHc.mp3', image: 'https://th.bing.com/th/id/OIP.SVzcxWEcdfkbYTomeyBCBgHaHa?rs=1&pid=ImgDetMain' }          
+            { title: '流沙 陶喆', url: 'https://lv-sycdn.kuwo.cn/935f768aa96106736650c0b5de51d962/6759d217/resource/30106/trackmedia/M500003TdXm70keYpv.mp3?bitrate$128&from=vip', image: 'https://bkimg.cdn.bcebos.com/pic/562c11dfa9ec8a1349f69415fd03918fa1ecc053?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080' },
+            { title: 'Thunderstruck AC/DC', url: 'https://rc-sycdn.kuwo.cn/2f2fff6071ed33487dc8e52b5164b34b/6759e4ac/resource/n1/1/84/97419025.mp3?bitrate$128&from=vip', image: 'https://1.bp.blogspot.com/-W6lmK4qP0TM/X07Y-0aDzSI/AAAAAAAAD88/Jv9VcoCJEPs6wHbar71Qsx5EJFtZmOwPwCLcBGAsYHQ/s1600/81su3n2l93L._SL1500_.jpg' }          
         ]);
         const currentImage = ref(songs.value[0].image);
         const currentSong = computed(() => songs.value[currentSongIndex.value]);
